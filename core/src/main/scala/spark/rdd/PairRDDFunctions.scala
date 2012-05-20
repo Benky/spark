@@ -1,11 +1,7 @@
-package spark
+package spark.rdd
 
-import java.io.EOFException
-import java.net.URL
-import java.io.ObjectInputStream
-import java.util.concurrent.atomic.AtomicLong
-import java.util.HashSet
-import java.util.Random
+import spark.SparkContext._
+import spark._
 import java.util.Date
 import java.text.SimpleDateFormat
 
@@ -14,18 +10,11 @@ import scala.collection.mutable.Map
 import scala.collection.mutable.HashMap
 
 import org.apache.hadoop.fs.Path
-import org.apache.hadoop.io.BytesWritable
-import org.apache.hadoop.io.NullWritable
-import org.apache.hadoop.io.Text
-import org.apache.hadoop.io.Writable
 import org.apache.hadoop.mapred.FileOutputCommitter
 import org.apache.hadoop.mapred.FileOutputFormat
 import org.apache.hadoop.mapred.HadoopWriter
 import org.apache.hadoop.mapred.JobConf
-import org.apache.hadoop.mapred.OutputCommitter
 import org.apache.hadoop.mapred.OutputFormat
-import org.apache.hadoop.mapred.SequenceFileOutputFormat
-import org.apache.hadoop.mapred.TextOutputFormat
 
 import org.apache.hadoop.mapreduce.lib.output.{FileOutputFormat => NewFileOutputFormat}
 import org.apache.hadoop.mapreduce.{OutputFormat => NewOutputFormat}
@@ -34,7 +23,6 @@ import org.apache.hadoop.mapreduce.{Job => NewAPIHadoopJob}
 import org.apache.hadoop.mapreduce.TaskAttemptID
 import org.apache.hadoop.mapreduce.TaskAttemptContext
 
-import SparkContext._
 
 /**
  * Extra functions available on RDDs of (key, value) pairs through an implicit conversion.

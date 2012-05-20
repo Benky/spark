@@ -1,5 +1,6 @@
-package spark
+package spark.rdd
 
+import spark._
 import scala.collection.mutable.ArrayBuffer
 
 class UnionSplit[T: ClassManifest](

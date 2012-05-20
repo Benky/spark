@@ -1,4 +1,6 @@
-package spark
+package spark.rdd
+
+import spark._
 
 class CartesianSplit(idx: Int, val s1: Split, val s2: Split) extends Split with Serializable {
   override val index = idx

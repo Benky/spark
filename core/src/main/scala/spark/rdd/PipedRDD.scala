@@ -1,5 +1,6 @@
-package spark
+package spark.rdd
 
+import spark._
 import java.io.PrintWriter
 import java.util.StringTokenizer
 

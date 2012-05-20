@@ -1,5 +1,6 @@
-package spark
+package spark.rdd
 
+import spark._
 import java.util.Random
 
 class SampledRDDSplit(val prev: Split, val seed: Int) extends Split with Serializable {

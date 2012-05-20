@@ -1,5 +1,6 @@
-package spark
+package spark.rdd
 
+import spark._
 import java.io.EOFException
 import java.util.NoSuchElementException
 

@@ -3,8 +3,8 @@ package spark
 import java.io._
 import java.util.concurrent.atomic.AtomicInteger
 
+import rdd._
 import scala.actors.remote.RemoteActor
-import scala.collection.mutable.ArrayBuffer
 
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration

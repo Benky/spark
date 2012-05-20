@@ -1,5 +1,6 @@
-package spark
+package spark.rdd
 
+import spark._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.io.Writable
 import org.apache.hadoop.mapreduce.InputFormat
