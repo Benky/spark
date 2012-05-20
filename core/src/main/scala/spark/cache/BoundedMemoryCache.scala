@@ -1,6 +1,7 @@
-package spark
+package spark.cache
 
 import java.util.LinkedHashMap
+import spark.{SparkEnv, Logging}
 
 /**
  * An implementation of Cache that estimates the sizes of its entries and attempts to limit its

@@ -1,10 +1,11 @@
-package spark
+package spark.cache
 
 import java.io.File
 import java.io.{FileOutputStream,FileInputStream}
 import java.io.IOException
 import java.util.LinkedHashMap
 import java.util.UUID
+import spark.SparkEnv
 
 // TODO: cache into a separate directory using Utils.createTempDir
 // TODO: clean up disk cache afterwards

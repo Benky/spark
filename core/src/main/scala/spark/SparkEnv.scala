@@ -1,5 +1,8 @@
 package spark
 
+import cache.{CacheTracker, Cache}
+
+
 class SparkEnv (
   val cache: Cache,
   val serializer: Serializer,
@@ -22,7 +25,7 @@ object SparkEnv {
   }
 
   def createFromSystemProperties(isMaster: Boolean): SparkEnv = {
-    val cacheClass = System.getProperty("spark.cache.class", "spark.BoundedMemoryCache")
+    val cacheClass = System.getProperty("spark.cache.class", "spark.cache.BoundedMemoryCache")
     val cache = Class.forName(cacheClass).newInstance().asInstanceOf[Cache]
     
     val serializerClass = System.getProperty("spark.serializer", "spark.JavaSerializer")

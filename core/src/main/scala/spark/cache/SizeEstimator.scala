@@ -1,4 +1,4 @@
-package spark
+package spark.cache
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -10,25 +10,26 @@ import java.util.Random
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Estimates the sizes of Java objects (number of bytes of memory they occupy), for use in 
+ * Estimates the sizes of Java objects (number of bytes of memory they occupy), for use in
  * memory-aware caches.
  *
  * Based on the following JavaWorld article:
  * http://www.javaworld.com/javaworld/javaqa/2003-12/02-qa-1226-sizeof.html
  */
 object SizeEstimator {
-  private val OBJECT_SIZE  = 8 // Minimum size of a java.lang.Object
+  private val OBJECT_SIZE = 8
+  // Minimum size of a java.lang.Object
   private val POINTER_SIZE = 4 // Size of an object reference
 
   // Sizes of primitive types
-  private val BYTE_SIZE    = 1
+  private val BYTE_SIZE = 1
   private val BOOLEAN_SIZE = 1
-  private val CHAR_SIZE    = 2
-  private val SHORT_SIZE   = 2
-  private val INT_SIZE     = 4
-  private val LONG_SIZE    = 8
-  private val FLOAT_SIZE   = 4
-  private val DOUBLE_SIZE  = 8
+  private val CHAR_SIZE = 2
+  private val SHORT_SIZE = 2
+  private val INT_SIZE = 4
+  private val LONG_SIZE = 8
+  private val FLOAT_SIZE = 4
+  private val DOUBLE_SIZE = 8
 
   // A cache of ClassInfo objects for each class
   private val classInfos = new ConcurrentHashMap[Class[_], ClassInfo]
@@ -66,8 +67,8 @@ object SizeEstimator {
    * java.lang.Object size), and any fields that are pointers to objects.
    */
   private class ClassInfo(
-    val shellSize: Long,
-    val pointerFields: List[Field]) {}
+                           val shellSize: Long,
+                           val pointerFields: List[Field]) {}
 
   def estimate(obj: AnyRef): Long = {
     val state = new SearchState
@@ -146,7 +147,7 @@ object SizeEstimator {
     if (info != null) {
       return info
     }
-    
+
     val parent = getClassInfo(cls.getSuperclass)
     var shellSize = parent.shellSize
     var pointerFields = parent.pointerFields

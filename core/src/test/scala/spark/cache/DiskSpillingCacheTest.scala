@@ -1,6 +1,7 @@
-package spark
+package spark.cache
 
 import org.scalatest.FunSuite
+import spark.SparkEnv
 
 class DiskSpillingCacheTest extends FunSuite {
   test("constructor test") {

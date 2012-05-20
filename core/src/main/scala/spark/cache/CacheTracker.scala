@@ -1,10 +1,11 @@
-package spark
+package spark.cache
 
 import scala.actors._
 import scala.actors.Actor._
 import scala.actors.remote._
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
+import spark._
 
 sealed trait CacheTrackerMessage
 case class AddedToCache(rddId: Int, partition: Int, host: String, size: Long = 0L)

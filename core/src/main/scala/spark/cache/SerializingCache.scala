@@ -1,6 +1,6 @@
-package spark
+package spark.cache
 
-import java.io._
+import spark.{SparkEnv, Logging}
 
 /**
  * Wrapper around a BoundedMemoryCache that stores serialized objects as byte arrays in order to 

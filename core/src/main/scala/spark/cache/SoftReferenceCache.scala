@@ -1,4 +1,4 @@
-package spark
+package spark.cache
 
 import com.google.common.collect.MapMaker
 
