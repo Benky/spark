@@ -1,25 +1,10 @@
 package spark
 
-import java.io.EOFException
-import java.net.URL
-import java.io.ObjectInputStream
-import java.util.concurrent.atomic.AtomicLong
-import java.util.HashSet
-import java.util.Random
-import java.util.Date
-
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.hadoop.io.BytesWritable
 import org.apache.hadoop.io.NullWritable
 import org.apache.hadoop.io.Text
-import org.apache.hadoop.io.Writable
-import org.apache.hadoop.mapred.FileOutputCommitter
-import org.apache.hadoop.mapred.HadoopWriter
-import org.apache.hadoop.mapred.JobConf
-import org.apache.hadoop.mapred.OutputCommitter
-import org.apache.hadoop.mapred.OutputFormat
-import org.apache.hadoop.mapred.SequenceFileOutputFormat
 import org.apache.hadoop.mapred.TextOutputFormat
 
 import SparkContext._
@@ -82,9 +67,8 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
   // Transformations (return a new RDD)
   
   def map[U: ClassManifest](f: T => U): RDD[U] = new MappedRDD(this, sc.clean(f))
-  
-  def flatMap[U: ClassManifest](f: T => Traversable[U]): RDD[U] =
-    new FlatMappedRDD(this, sc.clean(f))
+
+  def flatMap[U: ClassManifest](f: T => Traversable[U]): RDD[U] = new FlatMappedRDD(this, sc.clean(f))
   
   def filter(f: T => Boolean): RDD[T] = new FilteredRDD(this, sc.clean(f))
 
@@ -94,8 +78,8 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
   def takeSample(withReplacement: Boolean, num: Int, seed: Int): Array[T] = {
     var fraction = 0.0
     var total = 0
-    var multiplier = 3.0
-    var initialCount = count()
+    val multiplier = 3.0
+    val initialCount = count()
     var maxSelected = 0
     
     if (initialCount > Integer.MAX_VALUE) {
@@ -106,11 +90,11 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
     
     if (num > initialCount) {
       total = maxSelected
-      fraction = Math.min(multiplier * (maxSelected + 1) / initialCount, 1.0)
+      fraction = math.min(multiplier * (maxSelected + 1) / initialCount, 1.0)
     } else if (num < 0) {
       throw(new IllegalArgumentException("Negative number of elements requested"))
     } else {
-      fraction = Math.min(multiplier * (num + 1) / initialCount, 1.0)
+      fraction = math.min(multiplier * (num + 1) / initialCount, 1.0)
       total = num.toInt
     }
   
@@ -120,9 +104,7 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
       samples = this.sample(withReplacement, fraction, seed).collect()
     }
   
-    val arr = samples.take(total)
-  
-    return arr
+    samples.take(total)
   }
 
   def union(other: RDD[T]): RDD[T] = new UnionRDD(sc, Array(this, other))
@@ -164,22 +146,14 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
 
   def reduce(f: (T, T) => T): T = {
     val cleanF = sc.clean(f)
-    val reducePartition: Iterator[T] => Option[T] = iter => {
-      if (iter.hasNext) {
-        Some(iter.reduceLeft(cleanF))
-      }else {
-        None
-      }
-    }
-    val options = sc.runJob(this, reducePartition)
-    val results = new ArrayBuffer[T]
-    for (opt <- options; elem <- opt) {
-      results += elem
-    }
+    val reducePartition: Iterator[T] => Option[T] = _.reduceLeftOption(cleanF)
+
+    val results = sc.runJob(this, reducePartition).flatMap(i => i)
+
     if (results.size == 0) {
       throw new UnsupportedOperationException("empty collection")
     } else {
-      return results.reduceLeft(cleanF)
+      results.reduceLeft(cleanF)
     }
   }
 
@@ -192,7 +166,7 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
   def fold(zeroValue: T)(op: (T, T) => T): T = {
     val cleanOp = sc.clean(op)
     val results = sc.runJob(this, (iter: Iterator[T]) => iter.fold(zeroValue)(cleanOp))
-    return results.fold(zeroValue)(cleanOp)
+    results.fold(zeroValue)(cleanOp)
   }
 
   /**
@@ -206,21 +180,11 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
   def aggregate[U: ClassManifest](zeroValue: U)(seqOp: (U, T) => U, combOp: (U, U) => U): U = {
     val cleanSeqOp = sc.clean(seqOp)
     val cleanCombOp = sc.clean(combOp)
-    val results = sc.runJob(this,
-        (iter: Iterator[T]) => iter.aggregate(zeroValue)(cleanSeqOp, cleanCombOp))
-    return results.fold(zeroValue)(cleanCombOp)
+    val results = sc.runJob(this, (iter: Iterator[T]) => iter.aggregate(zeroValue)(cleanSeqOp, cleanCombOp))
+    results.fold(zeroValue)(cleanCombOp)
   }
-  
-  def count(): Long = {
-    sc.runJob(this, (iter: Iterator[T]) => {
-      var result = 0L
-      while (iter.hasNext) {
-        result += 1L
-        iter.next
-      }
-      result
-    }).sum
-  }
+
+  def count(): Long = sc.runJob(this, (iter: Iterator[T]) => iter.size).sum
 
   def toArray(): Array[T] = collect()
   
@@ -243,7 +207,7 @@ abstract class RDD[T: ClassManifest](@transient sc: SparkContext) extends Serial
         return buf.toArray
       p += 1
     }
-    return buf.toArray
+    buf.toArray
   }
 
   def first(): T = take(1) match {
