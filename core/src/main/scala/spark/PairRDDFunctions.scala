@@ -354,9 +354,9 @@ class PairRDDFunctions[K: ClassManifest, V: ClassManifest](
     writer.cleanup()
   }
 
-  def getKeyClass() = implicitly[ClassManifest[K]].erasure
+  def getKeyClass = implicitly[ClassManifest[K]].erasure
 
-  def getValueClass() = implicitly[ClassManifest[V]].erasure
+  def getValueClass = implicitly[ClassManifest[V]].erasure
 }
 
 class OrderedRDDFunctions[K <% Ordered[K]: ClassManifest, V: ClassManifest](

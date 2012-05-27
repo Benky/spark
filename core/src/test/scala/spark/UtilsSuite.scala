@@ -25,5 +25,14 @@ class UtilsSuite extends FunSuite {
 
     assert(os.toByteArray.toList.equals(bytes.toList))
   }
+
+  test("splitWords") {
+    assert(Utils.splitWords("") == Seq())
+    assert(Utils.splitWords(" \t\n\r") == Seq())
+    assert(Utils.splitWords("a1b") === Seq("a", "b"))
+    assert(Utils.splitWords("a,B.C;d!e/F") === Seq("a","B","C","d","e","F"))
+    assert(Utils.splitWords("Hello world.\n This is my 1st test.") ===
+      Seq("Hello", "world", "This", "is", "my", "st", "test"))
+  }
 }
 

@@ -307,6 +307,9 @@ private trait DAGScheduler extends Scheduler with Logging {
                 lastFetchFailureTime = time
                 // TODO: If there are a lot of fetch failures on the same node, maybe mark all
                 // outputs on the node as dead.
+              case ExceptionFailure(ex) =>
+                // Non-fetch failure -- probably a bug in the job, so bail out
+                throw new SparkException("Task failed: " + evt.task + ", reason: " + evt.reason, ex)
               case _ =>
                 // Non-fetch failure -- probably a bug in the job, so bail out
                 throw new SparkException("Task failed: " + evt.task + ", reason: " + evt.reason)

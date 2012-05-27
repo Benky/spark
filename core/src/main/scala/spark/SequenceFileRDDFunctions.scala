@@ -1,27 +1,7 @@
 package spark
 
-import java.io.EOFException
-import java.net.URL
-import java.io.ObjectInputStream
-import java.util.concurrent.atomic.AtomicLong
-import java.util.HashSet
-import java.util.Random
-import java.util.Date
-
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.Map
-import scala.collection.mutable.HashMap
-
-import org.apache.hadoop.mapred.JobConf
-import org.apache.hadoop.mapred.OutputFormat
-import org.apache.hadoop.mapred.TextOutputFormat
 import org.apache.hadoop.mapred.SequenceFileOutputFormat
-import org.apache.hadoop.mapred.OutputCommitter
-import org.apache.hadoop.mapred.FileOutputCommitter
 import org.apache.hadoop.io.Writable
-import org.apache.hadoop.io.NullWritable
-import org.apache.hadoop.io.BytesWritable
-import org.apache.hadoop.io.Text
 
 import SparkContext._
 
@@ -30,28 +10,15 @@ import SparkContext._
  * through an implicit conversion. Note that this can't be part of PairRDDFunctions because
  * we need more implicit parameters to convert our keys and values to Writable.
  */
-class SequenceFileRDDFunctions[K <% Writable: ClassManifest, V <% Writable : ClassManifest](
-    self: RDD[(K,V)])
+class SequenceFileRDDFunctions[K <% Writable : ClassManifest, V <% Writable : ClassManifest](self: RDD[(K, V)])
   extends Logging
   with Serializable {
-  
-  def getWritableClass[T <% Writable: ClassManifest](): Class[_ <: Writable] = {
-    val c = {
-      if (classOf[Writable].isAssignableFrom(classManifest[T].erasure)) { 
-        classManifest[T].erasure
-      } else {
-        implicitly[T => Writable].getClass.getMethods()(0).getReturnType
-      }
-       // TODO: use something like WritableConverter to avoid reflection
-    }
-    c.asInstanceOf[Class[ _ <: Writable]]
-  }
 
   def saveAsSequenceFile(path: String) {
     def anyToWritable[U <% Writable](u: U): Writable = u
 
-    val keyClass = getWritableClass[K]
-    val valueClass = getWritableClass[V]
+    val keyClass = SequenceFileRDDFunctions.getWritableClass[K]
+    val valueClass = SequenceFileRDDFunctions.getWritableClass[V]
     val convertKey = !classOf[Writable].isAssignableFrom(self.getKeyClass)
     val convertValue = !classOf[Writable].isAssignableFrom(self.getValueClass)
   
@@ -66,5 +33,19 @@ class SequenceFileRDDFunctions[K <% Writable: ClassManifest, V <% Writable : Cla
     } else if (convertKey && convertValue) {
       self.map(x => (anyToWritable(x._1),anyToWritable(x._2))).saveAsHadoopFile(path, keyClass, valueClass, format) 
     } 
+  }
+}
+
+object SequenceFileRDDFunctions{
+  def getWritableClass[T <% Writable: ClassManifest]: Class[_ <: Writable] = {
+    val c = {
+      if (classOf[Writable].isAssignableFrom(classManifest[T].erasure)) {
+        classManifest[T].erasure
+      } else {
+        implicitly[T => Writable].getClass.getMethod("apply", classManifest[T].erasure).getReturnType
+      }
+       // TODO: use something like WritableConverter to avoid reflection
+    }
+    c.asInstanceOf[Class[ _ <: Writable]]
   }
 }

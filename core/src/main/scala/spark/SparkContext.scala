@@ -4,7 +4,6 @@ import java.io._
 import java.util.concurrent.atomic.AtomicInteger
 
 import scala.actors.remote.RemoteActor
-import scala.collection.mutable.ArrayBuffer
 
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration
@@ -373,18 +372,6 @@ object SparkContext {
   implicit def stringToText(s: String) = new Text(s)
 
   private implicit def arrayToArrayWritable[T <% Writable: ClassManifest](arr: Traversable[T]): ArrayWritable = {
-    def getWritableClass[T <% Writable: ClassManifest](): Class[_ <: Writable] = {
-      val c = {
-       if (classOf[Writable].isAssignableFrom(classManifest[T].erasure)) {
-         classManifest[T].erasure
-       } else {
-         implicitly[T => Writable].getClass.getMethods()(0).getReturnType
-       }
-       // TODO: use something like WritableConverter to avoid reflection
-      }
-      c.asInstanceOf[Class[ _ <: Writable]]
-    }
-
     def anyToWritable[U <% Writable](u: U): Writable = u
     
     new ArrayWritable(classManifest[T].erasure.asInstanceOf[Class[Writable]],

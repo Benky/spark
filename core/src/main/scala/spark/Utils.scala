@@ -59,18 +59,17 @@ object Utils {
   }
 
   // Create a temporary directory inside the given parent directory
-  def createTempDir(root: String = System.getProperty("java.io.tmpdir")): File = {
+  def createTempDir(root: String = System.getProperty("java.io.tmpdir"), dirPrefix: String = "spark-"): File = {
     var attempts = 0
     val maxAttempts = 10
     var dir: File = null
     while (dir == null) {
       attempts += 1
       if (attempts > maxAttempts) {
-        throw new IOException("Failed to create a temp directory after " + maxAttempts + 
-            " attempts!")
+        throw new IOException("Failed to create a temp directory after " + maxAttempts + " attempts!")
       }
       try {
-        dir = new File(root, "spark-" + UUID.randomUUID.toString)
+        dir = new File(root, dirPrefix + UUID.randomUUID.toString)
         if (dir.exists() || !dir.mkdirs()) {
           dir = null
         }
